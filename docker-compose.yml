@@ -1,0 +1,123 @@
+version: "3.6"
+
+volumes:
+  etc:
+  var:
+
+networks:
+  hostnet:
+    external: true
+    name: host
+
+configs:
+  compat.sh:
+    file: ./compat.sh
+  ceph.conf:
+    external: true
+
+secrets:
+  ceph.monmap:
+    external: true
+  ceph.mon.keyring:
+    external: true
+  ceph.client.admin.keyring:
+    external: true
+  ceph.bootstrap-osd.keyring:
+    external: true
+
+services:
+  mon:
+    image: ceph/daemon
+    entrypoint: /tmp/compat.sh
+    command: mon
+    networks:
+      hostnet: {}
+    volumes:
+      - etc:/etc/ceph
+      - var:/var/lib/ceph
+    configs:
+      - source: compat.sh
+        target: /tmp/compat.sh
+        mode: 0755
+      - source: ceph.conf
+        target: /etc/ceph/ceph.conf
+    secrets:
+      - ceph.monmap
+      - ceph.mon.keyring
+      - ceph.client.admin.keyring
+      - ceph.bootstrap-osd.keyring
+    environment:
+      - "NETWORK_AUTO_DETECT=4"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
+  mgr:
+    image: ceph/daemon
+    entrypoint: /tmp/compat.sh
+    command: mgr
+    #hostname: "{{.Node.Hostname}}"
+    networks:
+      hostnet: {}
+    volumes:
+      - etc:/etc/ceph
+      - var:/var/lib/ceph
+    configs:
+      - source: compat.sh
+        target: /tmp/compat.sh
+        mode: 0755
+      - source: ceph.conf
+        target: /etc/ceph/ceph.conf
+    secrets:
+      - ceph.client.admin.keyring
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  osd:
+    image: ceph/daemon
+    entrypoint: /tmp/compat.sh
+    command: osd
+    networks:
+      hostnet: {}
+    volumes:
+      - etc:/etc/ceph
+      - var:/var/lib/ceph
+      - /mnt/osd:/var/lib/ceph/osd
+    configs:
+      - source: compat.sh
+        target: /tmp/compat.sh
+        mode: 0755
+      - source: ceph.conf
+        target: /etc/ceph/ceph.conf
+    secrets:
+      - ceph.bootstrap-osd.keyring
+    deploy:
+      mode: global
+
+  mds:
+    image: ceph/daemon
+    entrypoint: /tmp/compat.sh
+    command: mds
+    networks:
+      hostnet: {}
+    volumes:
+      - etc:/etc/ceph
+      - var:/var/lib/ceph
+    configs:
+      - source: compat.sh
+        target: /tmp/compat.sh
+        mode: 0755
+      - source: ceph.conf
+        target: /etc/ceph/ceph.conf
+    secrets:
+      - ceph.client.admin.keyring
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
