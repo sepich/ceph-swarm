@@ -72,6 +72,9 @@ services:
         target: /etc/ceph/ceph.conf
     secrets:
       - ceph.client.admin.keyring
+    # This will add zabbix_sender to mgr
+    environment:
+      - ZABBIX=1
     deploy:
       replicas: 1
       placement:
