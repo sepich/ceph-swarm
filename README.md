@@ -16,8 +16,8 @@ node5.domain.local
 First 3 nodes are masters, and the rest are workers. Locations of corresponding Ceph roles:
 - `mon` to master nodes
 - `osd` to each node
-- `mgr` one to any master node
-- `mds` to master nodes
+- `mds` two (active/standby) anywhere
+- `mgr` one anywhere
 
 As `osd` would work in directory mode, preparing disks on each swarm node manually:
 ```bash
@@ -106,7 +106,7 @@ On each node specify at least 2 swarm master nodes, to mount from:
 # Save the key from previous step:
 echo 'AQDilPRa1BYKFxAanqbBx0JnutW4AdlYJmUehg==' > /root/.ceph
 apt install ceph-fs-common
-echo 'node1.domain.local,node2.domain.local:/ /mnt/ceph ceph name=swarm,secretfile=/root/.ceph 0 0' >> /etc/fstab
+echo 'node1.domain.local,node2.domain.local:/ /mnt/ceph ceph _netdev,name=swarm,secretfile=/root/.ceph 0 0' >> /etc/fstab
 mkdir /mnt/ceph && mount /mnt/ceph
 ```
 

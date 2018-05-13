@@ -77,9 +77,6 @@ services:
       - ZABBIX=1
     deploy:
       replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
 
   osd:
     image: ceph/daemon
@@ -120,7 +117,4 @@ services:
     secrets:
       - ceph.client.admin.keyring
     deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.role == manager
+      replicas: 2
