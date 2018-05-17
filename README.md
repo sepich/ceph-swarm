@@ -88,15 +88,15 @@ After everything is up, login to any `mon` container:
     usage:   209 MB used, 10020 MB / 10230 MB avail
     pgs:
 
-# Tweak for VMs
-ceph osd set nodeep-scrub
-
 # Configure CephFS
 ceph osd pool create cephfs_data 64
 ceph osd pool create cephfs_metadata 64
 ceph fs new cephfs cephfs_metadata cephfs_data
 # User for mounting, save this key
 ceph fs authorize cephfs client.swarm / rw
+
+# Tweak for VMs
+ceph osd pool set cephfs_data nodeep-scrub 1
 ```
 
 
