@@ -11,17 +11,17 @@ for d in osd mds rbd rgw; do
     fi
 done
 
-base="/var/lib/ceph/mon/ceph-`hostname`"
-if [ ! -e "$base/keyring" -a -e /run/secrets/monmap ]; then
-  echo "Bootstrapping new mon from Swarm secrets"
-  mkdir -p $base && chown ceph:ceph $base
-  ceph-mon --setuser ceph --setgroup ceph --cluster ceph --mkfs -i `hostname` --monmap /run/secrets/monmap --keyring /etc/ceph/ceph.mon.keyring --mon-data $base
-fi
-
-if [ "$1" == "mgr" -a "$ZABBIX" ]; then
+if [ "$1" == "mon" ]; then
+  base="/var/lib/ceph/mon/ceph-`hostname`"
+  if [ ! -e "$base/keyring" -a -e /run/secrets/monmap ]; then
+    echo "Bootstrapping new mon from Swarm secrets"
+    mkdir -p $base && chown ceph:ceph $base
+    ceph-mon --setuser ceph --setgroup ceph --cluster ceph --mkfs -i `hostname` --monmap /run/secrets/monmap --keyring /etc/ceph/ceph.mon.keyring --mon-data $base
+  fi
+elif [ "$1" == "mgr" -a "$ZABBIX" ]; then
   echo "Adding zabbix_sender to mgr"
   rpm -Uvh http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-2.el7.noarch.rpm
   yum install -y zabbix-sender
 fi
 
-/entrypoint.sh "$@"
+exec /entrypoint.sh "$@"

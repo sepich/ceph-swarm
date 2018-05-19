@@ -50,6 +50,7 @@ mon initial members = node1, node2, node3
 mon host = node1.domain.local, node2.domain.local, node3.domain.local
 osd journal size = 100
 log file = /dev/null
+mon cluster log file = /var/lib/ceph/mon/$cluster-$id/$channel.log
 ```
 Create secrets and configs in swarm:
 ```bash
